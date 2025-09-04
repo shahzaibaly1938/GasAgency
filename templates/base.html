@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="{% static 'images/logo.png' %}">
+    <title>{% block title %}Q Travel Finance{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'dist/style.css' %}">
+    <style>
+        :root {
+            --primary: #7A1CAC;
+            --secondary: #AD49E1;
+            --background: #FAF7F3;
+            --box_background: #EBD3F8;
+            --hero_background: #2E073F;
+            --text_primary: #0F0E0E;
+            --text_secondary: #FFFFFF;
+        }
+    </style>
+</head>
+<body class="bg-[var(--background)]">
+    {% include 'components/header.html' %}
+    {% include 'components/sidebar.html' %}
+    {% block content %}
+
+    {% endblock %}
+</body>
+</html>

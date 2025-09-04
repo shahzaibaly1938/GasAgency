@@ -1,0 +1,32 @@
+<header style="background: var(--hero_background, #2E073F); color: var(--text_secondary, #FFFFFF); padding: 0;">
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 1rem 2rem;">
+    <span style="font-size: 2rem; font-weight: bold; color: var(--background, #FAF7F3); letter-spacing: 2px;">
+      Siachen Perl Gas Agency
+    </span>
+    <a href="/account" style="display: flex; align-items: center; text-decoration: none;">
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+        <circle cx="18" cy="13" r="7" fill="var(--box_background, #EBD3F8)" stroke="var(--secondary, #AD49E1)" stroke-width="2"/>
+        <ellipse cx="18" cy="26" rx="11" ry="6" fill="var(--box_background, #EBD3F8)" stroke="var(--primary, #7A1CAC)" stroke-width="2"/>
+      </svg>
+    </a>
+  </div>
+  <style>
+    header {
+      box-shadow: 0 4px 16px rgba(44, 7, 63, 0.18);
+      border-bottom: 2px solid var(--secondary, #AD49E1);
+    }
+    header span {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      letter-spacing: 2px;
+      /* Removed text-shadow for a flat look */
+    }
+    header a:hover svg ellipse {
+      stroke: var(--secondary, #AD49E1);
+      fill: var(--primary, #7A1CAC);
+      transition: all 0.2s;
+    }
+    header a:hover svg circle {
+      stroke: var(--primary, #7A1CAC);
+    }
+  </style>
+</header>

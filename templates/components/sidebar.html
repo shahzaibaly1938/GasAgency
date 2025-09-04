@@ -1,0 +1,19 @@
+<aside class="w-64 min-h-screen bg-[var(--box_background)] flex flex-col py-8 px-4 shadow-lg
+                  fixed md:static z-30 transition-transform duration-300 md:translate-x-0 -translate-x-full "
+        id="sidebar">
+        <nav class="flex-1 space-y-2">
+            <a href=""
+                class="block py-2 px-4 rounded-lg text-[var(--text_primary)] hover:bg-[var(--primary)] hover:text-[var(--text_secondary)] transition font-bold {% if request.resolver_match.url_name == 'dashboard' %}bg-[var(--secondary)] text-[var(--text_secondary)]{% endif %}">DASHBOARD</a>
+            <a href=""
+                class="block py-2 px-4 rounded-lg text-[var(--text_primary)] hover:bg-[var(--primary)] hover:text-[var(--text_secondary)] transition font-bold {% if request.resolver_match.url_name == 'sell' %}bg-[var(--secondary)] text-[var(--text_secondary)]{% endif %}">SELL</a>
+            
+            <a href=""
+                class="block py-2 px-4 rounded-lg text-[var(--text_primary)] hover:bg-[var(--primary)] hover:text-[var(--text_secondary)] transition font-bold {% if request.resolver_match.url_name == 'buy' %}bg-[var(--secondary)] text-[var(--text_secondary)]{% endif %}">BUY</a>
+            <a href=""
+                class="block py-2 px-4 rounded-lg text-[var(--text_primary)] hover:bg-[var(--primary)] hover:text-[var(--text_secondary)] transition font-bold {% if request.resolver_match.url_name == 'expense' %}bg-[var(--secondary)] text-[var(--text_secondary)]{% endif %}">EXPENSE</a>
+            <a href=""
+                class="block py-2 px-4 rounded-lg text-[var(--text_primary)] hover:bg-[var(--primary)] hover:text-[var(--text_secondary)] transition font-bold {% if request.resolver_match.url_name == 'customer' %}bg-[var(--secondary)] text-[var(--text_secondary)]{% endif %}">CUSTOMER</a>
+            
+
+        </nav>
+    </aside>
