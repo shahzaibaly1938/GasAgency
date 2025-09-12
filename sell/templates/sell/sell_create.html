@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="min-h-screen bg-[var(--background)] py-8 px-2 md:px-8">
+  <div class="max-w-2xl mx-auto bg-[var(--box_background)] rounded-xl shadow-lg p-6">
+    <!-- Title -->
+    <h2 class="text-2xl font-bold text-[var(--primary)] mb-6 tracking-wide">Sell Gas</h2>
+    <form method="POST" class="space-y-8">
+      {% csrf_token %}
+
+      <!-- Customer Section -->
+      <div>
+        <h3 class="text-lg font-semibold text-[var(--primary)] mb-2">Customer Details</h3>
+        <div class="flex flex-col md:flex-row gap-4">
+          <div class="flex-1 relative">
+            <label class="block text-[var(--primary)] font-medium mb-1">Search or Select Customer</label>
+            <input
+              type="text"
+              id="customer_search"
+              name="customer_search"
+              placeholder="Type customer name..."
+              autocomplete="off"
+              class="w-full px-4 py-2 rounded-lg border border-[var(--primary)] bg-white text-[var(--text_primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+              oninput="filterCustomers()"
+            >
+            <ul id="customer_list"
+                class="absolute left-0 right-0 bg-white border border-[var(--primary)] rounded-lg mt-1 max-h-48 overflow-y-auto shadow z-20 hidden">
+              {% for customer in customers %}
+                <li
+                  class="px-4 py-2 cursor-pointer hover:bg-[var(--box_background)] text-[var(--text_primary)]"
+                  data-id="{{ customer.id }}"
+                  onclick="selectCustomer(this)">
+                  {{ customer.name }}
+                </li>
+              {% endfor %}
+            </ul>
+            <input type="hidden" name="customer" id="customer_selected_id">
+          </div>
+          <div class="flex items-end">
+            <a href="" class="inline-block bg-[var(--primary)] hover:bg-[var(--secondary)] text-[var(--text_secondary)] font-semibold px-4 py-2 rounded-lg shadow transition whitespace-nowrap">
+              + New Customer
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gas Details Section -->
+      <div>
+        <h3 class="text-lg font-semibold text-[var(--primary)] mb-2">Gas Details</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Domestic -->
+          <div class="bg-white rounded-lg p-4 shadow-sm">
+            <h4 class="font-semibold text-[var(--primary)] mb-2">Domestic</h4>
+            <div class="mb-3">
+              <label class="block text-[var(--primary)] mb-1">Number of Cylinders</label>
+              <input type="number" min="0" name="domestic_number" id="domestic_number"
+                class="w-full px-3 py-2 rounded-lg border border-[var(--box_background)] bg-[var(--box_background)] text-[var(--text_primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+                value="0" required>
+            </div>
+            <div class="mb-3">
+              <label class="block text-[var(--primary)] mb-1">Price per Cylinder</label>
+              <input type="number" min="0" name="domestic_price" id="domestic_price"
+                class="w-full px-3 py-2 rounded-lg border border-[var(--box_background)] bg-[var(--box_background)] text-[var(--text_primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+                value="0" required>
+            </div>
+            <div>
+              <label class="block text-[var(--primary)] mb-1">Return Empty Cylinders</label>
+              <input type="number" min="0" name="domestic_return" id="domestic_return"
+                class="w-full px-3 py-2 rounded-lg border border-[var(--box_background)] bg-[var(--box_background)] text-[var(--text_primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+                value="0">
+            </div>
+          </div>
+          <!-- Commercial -->
+          <div class="bg-white rounded-lg p-4 shadow-sm">
+            <h4 class="font-semibold text-[var(--primary)] mb-2">Commercial</h4>
+            <div class="mb-3">
+              <label class="block text-[var(--primary)] mb-1">Number of Cylinders</label>
+              <input type="number" min="0" name="commercial_number" id="commercial_number"
+                class="w-full px-3 py-2 rounded-lg border border-[var(--box_background)] bg-[var(--box_background)] text-[var(--text_primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+                value="0" required>
+            </div>
+            <div class="mb-3">
+              <label class="block text-[var(--primary)] mb-1">Price per Cylinder</label>
+              <input type="number" min="0" name="commercial_price" id="commercial_price"
+                class="w-full px-3 py-2 rounded-lg border border-[var(--box_background)] bg-[var(--box_background)] text-[var(--text_primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+                value="0" required>
+            </div>
+            <div>
+              <label class="block text-[var(--primary)] mb-1">Return Empty Cylinders</label>
+              <input type="number" min="0" name="commercial_return" id="commercial_return"
+                class="w-full px-3 py-2 rounded-lg border border-[var(--box_background)] bg-[var(--box_background)] text-[var(--text_primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
+                value="0">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total Amount -->
+      <div class="flex items-center justify-between bg-white rounded-lg p-4 shadow-sm">
+        <span class="text-lg font-semibold text-[var(--primary)]">Total Amount</span>
+        <span id="total_amount" class="text-2xl font-bold text-[var(--secondary)]">Rs. 0</span>
+        <input type="hidden" name="total_amount" id="total_amount_input" value="0">
+      </div>
+
+      <!-- Date and Time Field -->
+      <div>
+        <label class="block text-[var(--primary)] font-medium mb-1">Date & Time of Sale</label>
+        <input type="datetime-local" name="sale_datetime" id="sale_datetime"
+          class="w-full px-4 py-2 rounded-lg border border-[var(--primary)] bg-white text-[var(--text_primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition" required>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="flex justify-end">
+        <button type="submit" class="bg-[var(--primary)] hover:bg-[var(--secondary)] text-[var(--text_secondary)] font-semibold px-8 py-2 rounded-lg shadow transition">
+          Sell
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Auto-calculate total amount
+  function calculateTotal() {
+    const dn = parseInt(document.getElementById('domestic_number').value) || 0;
+    const dp = parseFloat(document.getElementById('domestic_price').value) || 0;
+    const cn = parseInt(document.getElementById('commercial_number').value) || 0;
+    const cp = parseFloat(document.getElementById('commercial_price').value) || 0;
+    const total = (dn * dp) + (cn * cp);
+    document.getElementById('total_amount').textContent = 'Rs. ' + total;
+    document.getElementById('total_amount_input').value = total;
+  }
+  document.getElementById('domestic_number').addEventListener('input', calculateTotal);
+  document.getElementById('domestic_price').addEventListener('input', calculateTotal);
+  document.getElementById('commercial_number').addEventListener('input', calculateTotal);
+  document.getElementById('commercial_price').addEventListener('input', calculateTotal);
+  calculateTotal();
+
+  // Customer search dropdown logic
+  const customerSearch = document.getElementById('customer_search');
+  const customerList = document.getElementById('customer_list');
+  const customerSelectedId = document.getElementById('customer_selected_id');
+
+  customerSearch.addEventListener('input', filterCustomers);
+  customerSearch.addEventListener('focus', () => {
+    filterCustomers();
+    customerList.classList.remove('hidden');
+  });
+  document.addEventListener('click', function(e) {
+    if (!customerSearch.contains(e.target) && !customerList.contains(e.target)) {
+      customerList.classList.add('hidden');
+    }
+  });
+
+  function filterCustomers() {
+    const filter = customerSearch.value.toLowerCase();
+    let hasVisible = false;
+    customerList.querySelectorAll('li').forEach(li => {
+      if (li.textContent.toLowerCase().startsWith(filter) || li.textContent.toLowerCase().includes(filter)) {
+        li.classList.remove('hidden');
+        hasVisible = true;
+      } else {
+        li.classList.add('hidden');
+      }
+    });
+    customerList.classList.toggle('hidden', !hasVisible);
+  }
+
+  window.selectCustomer = function(li) {
+    customerSearch.value = li.textContent;
+    customerSelectedId.value = li.getAttribute('data-id');
+    customerList.classList.add('hidden');
+  };
+
+  // Set current date and time for datetime-local field
+  function setCurrentDateTime() {
+    const dt = new Date();
+    const pad = n => n < 10 ? '0' + n : n;
+    const local = dt.getFullYear() + '-' +
+      pad(dt.getMonth() + 1) + '-' +
+      pad(dt.getDate()) + 'T' +
+      pad(dt.getHours()) + ':' +
+      pad(dt.getMinutes());
+    document.getElementById('sale_datetime').value = local;
+  }
+  setCurrentDateTime();
+</script>
+{% endblock %}

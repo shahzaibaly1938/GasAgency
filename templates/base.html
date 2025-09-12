@@ -6,25 +6,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="{% static 'images/logo.png' %}">
-    <title>{% block title %}Q Travel Finance{% endblock %}</title>
+    <title>{% block title %}Indus Gas{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'dist/style.css' %}">
     <style>
         :root {
-            --primary: #7A1CAC;
-            --secondary: #AD49E1;
-            --background: #FAF7F3;
-            --box_background: #EBD3F8;
-            --hero_background: #2E073F;
+            --primary: #4285f4;
+            --secondary: #4285f4;
+            --background: #ffffff;
+            --box_background: #f1f1f1;
+            --hero_background: #4285f4;
             --text_primary: #0F0E0E;
             --text_secondary: #FFFFFF;
         }
     </style>
 </head>
+
 <body class="bg-[var(--background)]">
     {% include 'components/header.html' %}
-    {% include 'components/sidebar.html' %}
-    {% block content %}
+     {% include 'components/messages.html' %}
+    <div class="flex">
+        <div>
+            {% include 'components/sidebar.html' %}
+        </div>
+        <div class="w-full">
+            {% block content %}
 
-    {% endblock %}
+            {% endblock %}
+        </div>
+    </div>
+
+
 </body>
+<script>
+
+// Responsive sidebar toggle for mobile
+        document.addEventListener('DOMContentLoaded', function () {
+            const sidebar = document.getElementById('sidebar');
+            document.body.addEventListener('click', function (e) {
+                if (window.innerWidth < 768 && !sidebar.contains(e.target) && !e.target.closest('button')) {
+                    sidebar.classList.add('-translate-x-full');
+                }
+            });
+        });
+
+
+
+
+        function openModal(id) {
+            document.getElementById(`deleteModal-${id}`).classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            document.getElementById(`deleteModal-${id}`).classList.add('hidden');
+        }
+
+
+
+</script>
+
 </html>

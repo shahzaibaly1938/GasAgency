@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="min-h-screen bg-[var(--background)] py-8 px-2 md:px-8">
+  <div class="max-w-2xl mx-auto bg-[var(--box_background)] rounded-xl shadow-lg p-6">
+    <h2 class="text-2xl font-bold text-[var(--primary)] mb-6 tracking-wide">Sell Details</h2>
+    <div class="overflow-x-auto">
+      <table class="min-w-full bg-white rounded-lg shadow text-[var(--text_primary)]">
+        <tbody>
+          <tr>
+            <th class="py-3 px-4 text-left text-[var(--primary)] font-semibold w-1/3">Customer</th>
+            <td class="py-3 px-4">{{ sell.customer.name }}</td>
+          </tr>
+          <tr>
+            <th class="py-3 px-4 text-left text-[var(--primary)] font-semibold">Date & Time</th>
+            <td class="py-3 px-4">{{ sell.date|date:"Y-m-d h:i A" }}</td>
+          </tr>
+          <tr>
+            <th class="py-3 px-4 text-left text-[var(--primary)] font-semibold">Domestic Cylinders</th>
+            <td class="py-3 px-4">{{ sell.no_domestic_cylinder }}</td>
+          </tr>
+          <tr>
+            <th class="py-3 px-4 text-left text-[var(--primary)] font-semibold">Domestic Price per Cylinder</th>
+            <td class="py-3 px-4">Rs. {{ sell.domestic_price }}</td>
+          </tr>
+          <tr>
+            <th class="py-3 px-4 text-left text-[var(--primary)] font-semibold">Domestic Empty Returned</th>
+            <td class="py-3 px-4">{{ sell.return_domestic_cylinder }}</td>
+          </tr>
+          <tr>
+            <th class="py-3 px-4 text-left text-[var(--primary)] font-semibold">Commercial Cylinders</th>
+            <td class="py-3 px-4">{{ sell.no_commercial_cylinder }}</td>
+          </tr>
+          <tr>
+            <th class="py-3 px-4 text-left text-[var(--primary)] font-semibold">Commercial Price per Cylinder</th>
+            <td class="py-3 px-4">Rs. {{ sell.commercial_price }}</td>
+          </tr>
+          <tr>
+            <th class="py-3 px-4 text-left text-[var(--primary)] font-semibold">Commercial Empty Returned</th>
+            <td class="py-3 px-4">{{ sell.return_commercial_cylinder }}</td>
+          </tr>
+          <tr>
+            <th class="py-3 px-4 text-left text-[var(--primary)] font-semibold">Total Amount</th>
+            <td class="py-3 px-4 font-bold text-[var(--secondary)] text-lg">Rs. {{ sell.total_amount }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="mt-8 flex justify-end">
+      <a href="{% url 'sell' %}" class="bg-[var(--primary)] hover:bg-[var(--secondary)] text-[var(--text_secondary)] font-semibold px-6 py-2 rounded-lg shadow transition">
+        Back to Sales
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}
