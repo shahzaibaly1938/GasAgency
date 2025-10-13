@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="min-h-screen bg-[var(--background)] py-8 px-2 md:px-8">
+  <div class="max-w-xl mx-auto bg-[var(--box_background)] rounded-xl shadow-lg p-6">
+    <h2 class="text-2xl font-bold text-[var(--primary)] mb-6 tracking-wide">Expense Details</h2>
+    <div class="overflow-x-auto">
+      <table class="min-w-full bg-white rounded-lg shadow text-[var(--text_primary)]">
+        <tbody>
+          <tr>
+            <th class="py-3 px-4 text-left text-[var(--primary)] font-semibold w-1/3">Name</th>
+            <td class="py-3 px-4">{{ expense.name }}</td>
+          </tr>
+          <tr>
+            <th class="py-3 px-4 text-left text-[var(--primary)] font-semibold">Category</th>
+            <td class="py-3 px-4">{{ expense.category }}</td>
+          </tr>
+          <tr>
+            <th class="py-3 px-4 text-left text-[var(--primary)] font-semibold">Amount</th>
+            <td class="py-3 px-4 capitalize">{{ expense.amount }}</td>
+          </tr>
+          <tr>
+            <th class="py-3 px-4 text-left text-[var(--primary)] font-semibold">Date</th>
+            <td class="py-3 px-4 capitalize">{{ expense.date }}</td>
+          </tr>
+          <tr>
+            <th class="py-3 px-4 text-left text-[var(--primary)] font-semibold">Description</th>
+            <td class="py-3 px-4">{{ expense.description|default:"—" }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="mt-8 flex justify-end gap-2">
+      <a href="{% url 'edit_expenses' expense.id %}" class="bg-[var(--secondary)] hover:bg-[var(--primary)] text-[var(--text_secondary)] font-semibold px-6 py-2 rounded-lg shadow transition">
+        Edit
+      </a>
+      <form method="post" action="{% url 'delete_expense' expense.id %}" class="inline">
+        {% csrf_token %}
+        <button type="submit" onclick="return confirm('Are you sure you want to delete this expense?')" class="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2 rounded-lg shadow transition">
+          Delete
+        </button>
+      </form>
+      <a href="{% url 'expense' %}" class="bg-[var(--primary)] hover:bg-[var(--secondary)] text-[var(--text_secondary)] font-semibold px-6 py-2 rounded-lg shadow transition">
+        Back to Expenses
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -40,21 +40,23 @@ def expenses_list(request):
 
 def expense_detail(request, id):
     expense = Expense.objects.get(id=id)
-    return render(request, 'expenses/expense_details.html', {'expense':expense})
+    return render(request, 'expense/expense_details.html', {'expense':expense})
 
 def add_expenses(request):
     if request.method == 'POST':
+        name = request.POST.get('name')
         category = request.POST.get('category')
         desc = request.POST.get('description')
         amount = request.POST.get('amount')
         date = request.POST.get('date')
         expense = Expense(
+            name=name,
             category=Expense_category.objects.get(id=category),
             description=desc, amount=amount, date=date,
             )
         expense.save()
         messages.success(request, 'Expense added successfully.')
-        return redirect('expenses_list')
+        return redirect('expense')
     expense_category = Expense_category.objects.all()
     return render(request, 'expense/add_expenses.html',{'categories':expense_category})
 
@@ -64,25 +66,28 @@ def add_expenses_category(request):
         expense_category = Expense_category(name=name)
         expense_category.save()
         messages.success(request, 'Expense Category added successfully.')
-        return redirect('add_expenses_category')
+        return redirect('expense')
     return render(request, 'expense/add_expenses_category.html')
 
 
 def edit_expenses(request, id):
     if request.method == 'POST':
+        name = request.POST.get('name')
         category = request.POST.get('category')
         desc = request.POST.get('description')
         amount = request.POST.get('amount')
         date = request.POST.get('date')
 
+        
         u_expense = Expense.objects.get(id=id)
+        u_expense.name = name
         u_expense.category = Expense_category.objects.get(id=category)
         u_expense.description = desc
         u_expense.amount = amount
         u_expense.date = date
         u_expense.save()
         messages.success(request, 'Expense updates successfully!')
-        return redirect('expenses_list')
+        return redirect('expense')
     
 
     expense = Expense.objects.get(id=id)
@@ -92,10 +97,10 @@ def edit_expenses(request, id):
         'expense':expense,
         'categories':expense_category,
     }
-    return render(request, 'expenses/edit_expenses.html', context)
+    return render(request, 'expense/edit_expenses.html', context)
 
 def delete_expense(request, id):
     expense = Expense.objects.get(id=id)
     expense.delete()
     messages.success(request, f'Your {expense.category} expense is deleted successfully!')
-    return redirect('expenses_list')
+    return redirect('expense')
