@@ -3,23 +3,23 @@
 {% block content %}
 <div class="min-h-screen bg-[var(--background)] py-8 px-2 md:px-8 flex items-center justify-center">
   <div class="w-full max-w-md bg-[var(--box_background)] rounded-xl shadow-lg p-6">
-    <h2 class="text-2xl font-bold text-[var(--primary)] mb-6 tracking-wide text-center">Add Expense Category</h2>
+    <h2 class="text-2xl font-bold text-[var(--primary)] mb-6 tracking-wide text-center">Update Expense Category</h2>
     <form method="POST" class="space-y-5">
       {% csrf_token %}
       <div>
         <label class="block text-[var(--primary)] font-medium mb-1" for="name">Name</label>
-        <input type="text" name="name" id="name" maxlength="100" required
+        <input type="text" name="name" id="name" value="{{ expense_category.name }}" maxlength="100" required
           class="w-full px-4 py-2 rounded-lg border border-[var(--primary)] bg-white text-[var(--text_primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
           placeholder="Expense Name">
       </div>
       
       <div class="flex justify-between mt-4">
          <a href="{% url 'expense_category_list' %}" class=" text-[var(--primary)] font-semibold px-6 py-2 rounded-lg shadow transition">
-        list of categories
+        Back to categories
       </a>
         <button type="submit"
           class="bg-[var(--primary)] hover:bg-[var(--secondary)] text-[var(--text_secondary)] font-semibold px-8 py-2 rounded-lg shadow transition">
-          Add Category
+          Update Category
         </button>
       </div>
     </form>

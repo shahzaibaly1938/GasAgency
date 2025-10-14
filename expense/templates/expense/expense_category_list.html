@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="min-h-screen bg-[var(--background)] py-8 px-2 md:px-8">
+    <a href="{% url 'add_expenses_category' %}" class=" text-[var(--primary)] font-semibold px-6 py-2 rounded-lg shadow transition">
+        Back
+      </a>
+  <div class="max-w-5xl mx-auto mt-4">
+    <!-- Expense Table -->
+    <div class="bg-[var(--box_background)] rounded-xl shadow p-4 overflow-x-auto">
+      <table class="min-w-full text-left">
+        <thead>
+          <tr class="text-[var(--primary)] font-semibold text-sm border-b border-[var(--primary)]">
+            <th class="py-3 px-2">Name</th>
+            <th class="py-3 px-2 text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for expense_category in expense_categories %}
+          <tr class="border-b border-[var(--background)] hover:bg-[var(--background)] transition">       
+            <td class="py-2 px-2">{{ expense_category.name }}</td>
+            <td class="py-2 px-2 flex gap-2 justify-center">
+              <a href="{% url 'edit_expense_category' expense_category.id %}" class="text-[var(--secondary)] hover:underline font-semibold">Edit</a>
+              <form method="post" action="{% url 'delete_expense_category' expense_category.id %}" class="inline">
+                {% csrf_token %}
+                <button type="submit" onclick="return confirm('Are you sure you want to delete this expense?')" class="text-red-600 hover:underline font-semibold bg-transparent border-none p-0 m-0">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="text-center text-[var(--primary)] py-8">No expenses found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      
+    </div>
+    
+    <!-- Pagination -->
+    {% if expenses.has_other_pages %}
+    <div class="flex justify-center mt-6">
+      <nav class="inline-flex rounded-md shadow-sm" aria-label="Pagination">
+        {% if expenses.has_previous %}
+          <a href="?{% if request.GET.search %}search={{ request.GET.search }}&{% endif %}{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}page={{ expenses.previous_page_number }}"
+            class="px-3 py-1 rounded-l-lg bg-white border border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white transition">Previous</a>
+        {% else %}
+          <span class="px-3 py-1 rounded-l-lg bg-gray-200 border border-[var(--primary)] text-gray-400 cursor-not-allowed">Previous</span>
+        {% endif %}
+        {% for num in expenses.paginator.page_range %}
+          {% if expenses.number == num %}
+            <span class="px-3 py-1 bg-[var(--primary)] text-white border border-[var(--primary)]">{{ num }}</span>
+          {% elif num > expenses.number|add:'-3' and num < expenses.number|add:'3' %}
+            <a href="?{% if request.GET.search %}search={{ request.GET.search }}&{% endif %}{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}page={{ num }}"
+              class="px-3 py-1 bg-white border border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white transition">{{ num }}</a>
+          {% endif %}
+        {% endfor %}
+        {% if expenses.has_next %}
+          <a href="?{% if request.GET.search %}search={{ request.GET.search }}&{% endif %}{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}page={{ expenses.next_page_number }}"
+            class="px-3 py-1 rounded-r-lg bg-white border border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white transition">Next</a>
+        {% else %}
+          <span class="px-3 py-1 rounded-r-lg bg-gray-200 border border-[var(--primary)] text-gray-400 cursor-not-allowed">Next</span>
+        {% endif %}
+      </nav>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

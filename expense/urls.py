@@ -8,4 +8,7 @@ urlpatterns = [
     path('expense-details/<int:id>/', views.expense_detail, name='expense_detail'),
     path('edit-expenses/<int:id>/', views.edit_expenses, name='edit_expenses'),
     path('delete-expenses/<int:id>/', views.delete_expense, name='delete_expense'),
+    path('expense-categories/', views.expense_category_list, name='expense_category_list'),
+    path('delete-expense-category/<int:id>/', views.delete_expense_category, name='delete_expense_category'),
+    path('edit-expense-category/<int:id>/', views.edit_expense_category, name='edit_expense_category'),
 ]

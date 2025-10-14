@@ -104,3 +104,46 @@ def delete_expense(request, id):
     expense.delete()
     messages.success(request, f'Your {expense.category} expense is deleted successfully!')
     return redirect('expense')
+
+
+
+
+
+def expense_category_list(request):
+    expense_category = Expense_category.objects.all()
+    paginator = Paginator(expense_category, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'expense_categories':expense_category,
+        'expenses': page_obj,
+    }
+    return render(request, 'expense/expense_category_list.html', context)
+
+def delete_expense_category(request, id):
+    expense_category = Expense_category.objects.get(id=id)
+    expense_category.delete()
+    messages.success(request, f'Your {expense_category.name} category is deleted successfully!')
+    return redirect('expense_category_list')
+
+
+
+def edit_expense_category(request, id):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+
+        
+        u_expense_category = Expense_category.objects.get(id=id)
+        u_expense_category.name = name
+        u_expense_category.save()
+        messages.success(request, 'Category updates successfully!')
+        return redirect('expense_category_list')
+    
+
+    expense_category = Expense_category.objects.get(id=id)
+
+    context = {
+        'expense_category':expense_category,
+    }
+    return render(request, 'expense/edit_expense_category.html', context)
