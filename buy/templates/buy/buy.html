@@ -1,4 +1,117 @@
 {% extends 'base.html' %}
 {% block content %}
-<h1>Buy Page</h1>
+<div class="min-h-screen bg-[var(--background)] py-8 px-2 md:px-8">
+  <div class="max-w-5xl mx-auto">
+    <!-- Header and Buy Button -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+      <h1 class="text-2xl font-bold text-[var(--primary)] tracking-wide">Stock Management</h1>
+      <a href="{% url 'add_stock' %}" class="inline-block bg-[var(--primary)] hover:bg-[var(--secondary)] text-[var(--text_secondary)] font-semibold px-6 py-2 rounded-lg shadow transition">
+        + New Stock
+      </a>
+    </div>
+
+    <!-- Filters -->
+    <div class="flex flex-col md:flex-row gap-4 mb-6">
+      <input type="date" name="date" value="{{ request.GET.date }}"
+        class="w-full md:w-1/4 px-4 py-2 rounded-lg border border-[var(--box_background)] bg-[var(--box_background)] text-[var(--text_primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition" placeholder="Date">
+      <input type="text" name="vendor" value="{{ request.GET.vendor }}"
+        class="w-full md:w-1/4 px-4 py-2 rounded-lg border border-[var(--box_background)] bg-[var(--box_background)] text-[var(--text_primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition" placeholder="Vendor">
+      <button class="w-full md:w-auto px-6 py-2 rounded-lg bg-[var(--primary)] text-[var(--text_secondary)] font-semibold hover:bg-[var(--secondary)] transition">Filter</button>
+    </div>
+
+    <!-- Purchases Table -->
+    <div class="bg-[var(--box_background)] rounded-xl shadow p-4 overflow-x-auto mb-6">
+      <table class="min-w-full text-left">
+        <thead>
+          <tr class="text-[var(--primary)] font-semibold text-sm border-b border-[var(--primary)]">
+            <th class="py-3 px-2">Sno</th>
+            <th class="py-3 px-2">Date</th>
+            <th class="py-3 px-2">Time</th>
+            <th class="py-3 px-2">Vendor</th>
+            <th class="py-3 px-2">Domestic</th>
+            <th class="py-3 px-2">Commercial</th>
+            <th class="py-3 px-2">Return Domestic</th>
+            <th class="py-3 px-2">Return Commercial</th>
+            <th class="py-3 px-2">Total Amount</th>
+            <th class="py-3 px-2">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in stock %}
+          <tr class="border-b border-[var(--background)] hover:bg-[var(--background)] transition cursor-pointer" onclick="window.location.href=''">
+            <td class="py-2 px-2">{{ forloop.counter }}</td>
+            <td class="py-2 px-2">{{ item.date|date:"Y-m-d" }}</td>
+            <td class="py-2 px-2">{{ item.date|time:"h:i A" }}</td>
+            <td class="py-2 px-2"><a href="" class="hover:text-[var(--primary)] hover:underline">{{ item.vendor.name }}</a></td>
+            <td class="py-2 px-2">{{ item.no_domestic_cylinder }}</td>
+            <td class="py-2 px-2">{{ item.no_commercial_cylinder }}</td>
+            <td class="py-2 px-2">{{ item.return_domestic_cylinder }}</td>
+            <td class="py-2 px-2">{{ item.return_commercial_cylinder }}</td>
+            <td class="py-2 px-2">{{ item.total_amount }}</td>
+            <td class="py-2 px-2">
+              <a href="" class="text-[var(--primary)] hover:underline" onclick="event.stopPropagation();">Edit</a>
+              <button onclick="event.stopPropagation(); openDeleteModal('{{ item.id }}');" class="ml-2 text-red-600 hover:underline font-semibold">
+                Delete
+              </button>
+
+              <!-- Delete Confirmation Modal -->
+              <div id="deleteModal-{{ item.id }}" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+                  <h2 class="text-lg font-bold text-gray-800 mb-4">Confirm Delete</h2>
+                  <p class="text-gray-600 mb-6">Are you sure you want to delete this purchase record?</p>
+                  <div class="flex justify-end space-x-4">
+                    <button onclick="closeDeleteModal('{{ item.id }}')" class="px-4 py-2 bg-gray-300 rounded-md">Cancel</button>
+                    <form method="POST" action="">
+                      {% csrf_token %}
+                      <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md">Delete</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      {% if not stock %}
+      <div class="text-center text-[var(--primary)] py-8">No purchases found for the selected filters.</div>
+      {% endif %}
+    </div>
+
+    <!-- Pagination -->
+    {% if stock.has_other_pages %}
+    <div class="flex justify-center">
+      <nav class="inline-flex rounded-md shadow-sm" aria-label="Pagination">
+        {% if stock.has_previous %}
+        <a href="?page={{ buy.previous_page_number }}" class="px-3 py-2 rounded-l-lg border border-[var(--primary)] bg-white text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white transition">Previous</a>
+        {% else %}
+        <span class="px-3 py-2 rounded-l-lg border border-[var(--primary)] bg-gray-100 text-gray-400 cursor-not-allowed">Previous</span>
+        {% endif %}
+
+        {% for num in buy.paginator.page_range %}
+          {% if stock.number == num %}
+            <span class="px-3 py-2 border-t border-b border-[var(--primary)] bg-[var(--primary)] text-[var(--text_secondary)] font-semibold">{{ num }}</span>
+          {% elif num > buy.number|add:'-3' and num < buy.number|add:'3' %}
+            <a href="?page={{ num }}" class="px-3 py-2 border-t border-b border-[var(--primary)] bg-white text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white transition">{{ num }}</a>
+          {% endif %}
+        {% endfor %}
+
+        {% if stock.has_next %}
+        <a href="?page={{ buy.next_page_number }}" class="px-3 py-2 rounded-r-lg border border-[var(--primary)] bg-white text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white transition">Next</a>
+        {% else %}
+        <span class="px-3 py-2 rounded-r-lg border border-[var(--primary)] bg-gray-100 text-gray-400 cursor-not-allowed">Next</span>
+        {% endif %}
+      </nav>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+
+<script>
+function openDeleteModal(id){ document.getElementById('deleteModal-'+id).classList.remove('hidden'); }
+function closeDeleteModal(id){ document.getElementById('deleteModal-'+id).classList.add('hidden'); }
+</script>
 {% endblock %}

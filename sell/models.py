@@ -12,6 +12,8 @@ class Sell(models.Model):
     return_domestic_cylinder = models.PositiveIntegerField(default=0)
     return_commercial_cylinder = models.PositiveIntegerField(default=0)
     total_amount = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
+    payment_status = models.CharField(max_length=20, choices=[("paid", "Paid"), ("due", "Due") , ("partialy", "Partialy")], default="due")
+    due_amount = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
     date = models.DateTimeField(default=datetime.now)
 
     def __str__(self):

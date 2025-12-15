@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="min-h-screen bg-[var(--background)] py-8 px-2 md:px-8 flex items-center justify-center">
+  <div class="w-full max-w-xl bg-[var(--box_background)] rounded-xl shadow-lg p-6">
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-2xl font-bold text-[var(--primary)] tracking-wide">Process Payment</h1>
+      <a href="{% url 'payments_home' %}" class="text-sm text-[var(--primary)] hover:underline">Back</a>
+    </div>
+
+    <div class="space-y-4 mb-6">
+      <div class="flex justify-between items-center">
+        <div class="text-sm text-[var(--text_primary)]">Customer</div>
+        <div class="text-sm font-medium text-[var(--primary)]">{{ customer.get_full_name|default:customer.name }}</div>
+      </div>
+
+      <div class="flex justify-between items-center">
+        <div class="text-sm text-[var(--text_primary)]">Sell Record</div>
+        <div class="text-sm font-medium text-[var(--primary)]">RID: {{ sell_record.id }}</div>
+      </div>
+
+
+      {% if due_date %}
+      <div class="flex justify-between items-center">
+        <div class="text-sm text-[var(--text_primary)]">Due Date</div>
+        <div class="text-sm text-[var(--text_primary)]">{{ due_date|date:"Y-m-d" }}</div>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <a href="{% url 'add_payment' sell_record.id %}"
+             role="button"
+             class="w-full inline-flex px-6 py-4 rounded-lg bg-[var(--primary)] hover:bg-[var(--secondary)] text-[var(--text_secondary)] font-semibold shadow transition items-center justify-center gap-3 text-center">
+            <span class="text-lg">Pay Now</span>
+        </a>
+
+        <a href="?action=pay_later&customer={{ customer.id }}&sell_record={{ sell_record.id }}"
+             role="button"
+             class="w-full inline-flex px-6 py-4 rounded-lg bg-white border border-yellow-400 text-yellow-700 font-semibold hover:bg-yellow-50 transition items-center justify-center gap-3 text-center">
+            <span class="text-lg">Pay Later (Mark as Due)</span>
+        </a>
+    </div>
+
+    <p class="text-xs text-[var(--text_primary)] mt-4">Choose "Pay Now" to open the payment form pre-filled for this sale. Choose "Pay Later" to record this as a due.</p>
+  </div>
+</div>
+{% endblock %}

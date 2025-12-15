@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="min-h-screen bg-[var(--background)] py-8 px-2 md:px-8 flex items-center justify-center">
+  <div class="w-full max-w-lg bg-[var(--box_background)] rounded-xl shadow-lg p-6">
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-2xl font-bold text-[var(--primary)] tracking-wide">Add Payment</h1>
+      <a href="{% url 'payments_home' %}" class="text-sm text-[var(--primary)] hover:underline">Back</a>
+    </div>
+
+    <form method="post" action="{% url 'add_payment' sell_record.id %}" class="space-y-5">
+      {% csrf_token %}
+
+      <!-- Customer (readonly) -->
+      <div>
+        <label class="block text-[var(--primary)] font-medium mb-1">Customer</label>
+        <input type="text" value="{{ customer.get_full_name|default:customer.name }}" disabled
+               class="w-full px-4 py-2 rounded-lg border border-[var(--primary)] bg-white text-[var(--text_primary)]" />
+        <input type="hidden" name="customer" value="{{ customer.id }}">
+        {% if form.errors.customer %}<p class="text-sm text-red-600 mt-1">{{ form.errors.customer }}</p>{% endif %}
+      </div>
+
+      <!-- Sell record (readonly) -->
+      <div>
+        <label class="block text-[var(--primary)] font-medium mb-1">Sell Record</label>
+        <input type="text" value="RID: {{ sell_record.id }}{% if sell_record.summary %} - {{ sell_record.summary }}{% endif %}" disabled
+               class="w-full px-4 py-2 rounded-lg border border-[var(--primary)] bg-white text-[var(--text_primary)]" />
+        <input type="hidden" name="sell_record" value="{{ sell_record.id }}">
+        {% if form.errors.sell_record %}<p class="text-sm text-red-600 mt-1">{{ form.errors.sell_record }}</p>{% endif %}
+      </div>
+
+      <!-- Amount -->
+      <div>
+        <label class="block text-[var(--primary)] font-medium mb-1">Amount</label>
+        <input type="number" name="amount" step="0.01" required
+               class="w-full px-4 py-2 rounded-lg border border-[var(--primary)] bg-white text-[var(--text_primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]" />
+        {% if form.errors.amount %}<p class="text-sm text-red-600 mt-1">{{ form.errors.amount }}</p>{% endif %}
+      </div>
+
+      <!-- Payment Date -->
+      <div>
+        <label class="block text-[var(--primary)] font-medium mb-1">Payment Date</label>
+        <input type="date" name="payment_date"
+              
+               class="w-full px-4 py-2 rounded-lg border border-[var(--primary)] bg-white text-[var(--text_primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]" />
+      </div>
+
+      <!-- Payment Method (select) -->
+      <div>
+        <label class="block text-[var(--primary)] font-medium mb-1">Payment Method</label>
+        <select name="payment_method" class="w-full px-4 py-2 rounded-lg border border-[var(--primary)] bg-white text-[var(--text_primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]">
+          <option value="cash"
+            {% if request.POST.payment_method == 'cash' %}selected{% elif not request.POST.payment_method and default_payment_method|default:'cash' == 'cash' %}selected{% endif %}>
+            Cash
+          </option>
+          <option value="card" {% if request.POST.payment_method == 'card' %}selected{% endif %}>Card</option>
+          <option value="bank" {% if request.POST.payment_method == 'bank' %}selected{% endif %}>Bank Transfer</option>
+        </select>
+      </div>
+
+      <!-- Notes -->
+      <div>
+        <label class="block text-[var(--primary)] font-medium mb-1">Notes</label>
+        <textarea name="notes" rows="4"
+          class="w-full px-4 py-2 rounded-lg border border-[var(--primary)] bg-white text-[var(--text_primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]">{{ request.POST.notes|default:'' }}</textarea>
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex justify-end gap-3 mt-4">
+        <a href="{% url 'payments_home' %}" class="px-4 py-2 rounded-lg bg-white border border-[var(--primary)] text-[var(--text_primary)] hover:bg-[var(--box_background)] transition">Cancel</a>
+        <button type="submit" class="bg-[var(--primary)] hover:bg-[var(--secondary)] text-[var(--text_secondary)] font-semibold px-6 py-2 rounded-lg shadow transition">Save Payment</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const dateInput = document.querySelector('input[name="payment_date"]');
+  if (!dateInput) return;
+  // backend default (if provided) else today's date
+  const backendDefault = "{{ default_payment_date|default:'' }}";
+  if (!dateInput.value) {
+    if (backendDefault) {
+      dateInput.value = backendDefault;
+    } else {
+      const today = new Date().toISOString().slice(0,10);
+      dateInput.value = today;
+    }
+  }
+});
+</script>
+{% endblock %}

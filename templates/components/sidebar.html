@@ -8,11 +8,13 @@
                 class="block py-2 px-4 rounded-lg text-[var(--text_primary)] hover:bg-[var(--primary)] hover:text-[var(--text_secondary)] transition font-bold {% if request.resolver_match.url_name|slice:'0:4' == 'sell' %}bg-[var(--secondary)] text-[var(--text_secondary)]{% endif %}">SELL</a>
             
             <a href="{% url 'buy' %}"
-                class="block py-2 px-4 rounded-lg text-[var(--text_primary)] hover:bg-[var(--primary)] hover:text-[var(--text_secondary)] transition font-bold {% if request.resolver_match.url_name == 'buy' %}bg-[var(--secondary)] text-[var(--text_secondary)]{% endif %}">BUY</a>
+                class="block py-2 px-4 rounded-lg text-[var(--text_primary)] hover:bg-[var(--primary)] hover:text-[var(--text_secondary)] transition font-bold {% if request.resolver_match.url_name == 'buy' %}bg-[var(--secondary)] text-[var(--text_secondary)]{% endif %}">STOCK</a>
             <a href="{% url 'expense' %}"
                 class="block py-2 px-4 rounded-lg text-[var(--text_primary)] hover:bg-[var(--primary)] hover:text-[var(--text_secondary)] transition font-bold {% if request.resolver_match.url_name == 'expense' %}bg-[var(--secondary)] text-[var(--text_secondary)]{% endif %}">EXPENSE</a>
             <a href="{% url 'customer' %}"
                 class="block py-2 px-4 rounded-lg text-[var(--text_primary)] hover:bg-[var(--primary)] hover:text-[var(--text_secondary)] transition font-bold {% if request.resolver_match.url_name == 'customer' %}bg-[var(--secondary)] text-[var(--text_secondary)]{% endif %}">CUSTOMER</a>
+            <a href="{% url 'payments_home' %}"
+                class="block py-2 px-4 rounded-lg text-[var(--text_primary)] hover:bg-[var(--primary)] hover:text-[var(--text_secondary)] transition font-bold {% if request.resolver_match.url_name == 'payments' %}bg-[var(--secondary)] text-[var(--text_secondary)]{% endif %}">PAYMENTS</a>
             
 
         </nav>

@@ -3,7 +3,6 @@ from customer.models import Customer
 from .models import Sell
 from datetime import datetime
 from django.core.paginator import Paginator
-from django.contrib import messages
 
 # Create your views here.
 def sell_view(request):
@@ -42,7 +41,8 @@ def sell_create_view(request):
             date=date
         )
         sale.save()
-        messages.success(request, 'Sale record created successfully.')
+        return redirect('payment_process', sell_id=sale.id)                     
+        messages.success(request, 'Sale record created successfully.')  
         
     context = {
         'customers': customers,

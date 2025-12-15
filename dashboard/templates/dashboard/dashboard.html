@@ -1,7 +1,258 @@
 {% extends 'base.html' %}
 {% block content %}
+<div class="min-h-screen bg-(--background) py-6 px-2 md:px-8">
+  <div class="max-w-6xl mx-auto">
 
-<h1>Dashboard</h1>
+    <!-- Header + Filters -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+      <h1 class="text-2xl font-bold text-(--primary) tracking-wide">Dashboard</h1>
 
+      <form method="get" class="flex flex-wrap items-center gap-2">
+        <input type="date" name="start_date" value="{{ request.GET.start_date }}"
+               class="px-3 py-1.5 rounded-md border border-[var(--box_background)] bg-white text-(--text_primary) text-sm">
+        <input type="date" name="end_date" value="{{ request.GET.end_date }}"
+               class="px-3 py-1.5 rounded-md border border-[var(--box_background)] bg-white text-(--text_primary) text-sm">
+        <input type="month" name="month" value="{{ request.GET.month }}"
+               class="px-3 py-1.5 rounded-md border border-[var(--box_background)] bg-white text-(--text_primary) text-sm">
+        <input type="number" name="year" min="2000" max="2100" placeholder="Year" value="{{ request.GET.year }}"
+               class="w-20 px-3 py-1.5 rounded-md border border-[var(--box_background)] bg-white text-(--text_primary) text-sm">
 
+        <button type="submit" class="px-3 py-1.5 rounded-md bg-(--primary) hover:bg-(--secondary) text-(--text_secondary) text-sm">Filter</button>
+        <a href="{% url 'dashboard' %}" class="px-3 py-1.5 rounded-md bg-white border border-[var(--box_background)] text-(--text_primary) text-sm">Reset</a>
+      </form>
+    </div>
+
+    <!-- Range buttons -->
+    <div class="flex items-center gap-2 mb-3">
+      <div class="text-sm text-(--text_primary) mr-2 hidden md:block">Range</div>
+      <button id="range-day" type="button" aria-pressed="true" class="px-3 py-1 rounded-md bg-(--primary) hover:bg-(--secondary) text-(--text_secondary) text-sm">Day</button>
+      <button id="range-month" type="button" aria-pressed="false" class="px-3 py-1 rounded-md bg-white border border-[var(--box_background)] text-(--text_primary) hover:bg-(--box_background) text-sm">Month</button>
+      <button id="range-year" type="button" aria-pressed="false" class="px-3 py-1 rounded-md bg-white border border-[var(--box_background)] text-(--text_primary) hover:bg-(--box_background) text-sm">Year</button>
+    </div>
+
+    <!-- KPI cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+      <div class="bg-[var(--box_background)] rounded-xl shadow p-3 flex items-center gap-3">
+        <div class="p-2 rounded-md bg-(--primary)/20">
+          <svg class="w-5 h-5 text-(--primary)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3v18h18"/></svg>
+        </div>
+        <div>
+          <div class="text-xs text-(--text_primary)">Sales</div>
+          <div class="mt-1 text-lg font-semibold text-(--primary)">{{ total_sales|default:"0" }}</div>
+        </div>
+      </div>
+
+      <div class="bg-[var(--box_background)] rounded-xl shadow p-3 flex items-center gap-3">
+        <div class="p-2 rounded-md bg-(--primary)/20">
+          <svg class="w-5 h-5 text-(--primary)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c1.657 0 3 1.343 3 3v5"/></svg>
+        </div>
+        <div>
+          <div class="text-xs text-(--text_primary)">Expenses</div>
+          <div class="mt-1 text-lg font-semibold text-(--primary)">{{ total_expenses|default:"0" }}</div>
+        </div>
+      </div>
+
+      <div class="bg-[var(--box_background)] rounded-xl shadow p-3 flex items-center gap-3">
+        <div class="p-2 rounded-md bg-(--primary)/20">
+          <svg class="w-5 h-5 text-(--primary)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3"/></svg>
+        </div>
+        <div>
+          <div class="text-xs text-(--text_primary)">Profit</div>
+          <div class="mt-1 text-lg font-semibold text-(--primary)">{{ total_profit|default:"0" }}</div>
+        </div>
+      </div>
+
+      <div class="bg-[var(--box_background)] rounded-xl shadow p-3 flex items-center gap-3">
+        <div class="p-2 rounded-md bg-(--primary)/20">
+          <svg class="w-5 h-5 text-(--primary)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 6h18M3 14h18"/></svg>
+        </div>
+        <div>
+          <div class="text-xs text-(--text_primary)">Cylinders Sold</div>
+          <div class="mt-1 text-lg font-semibold text-(--primary)">{{ cylinders_sold|default:"0" }}</div>
+        </div>
+      </div>
+
+      <div class="bg-[var(--box_background)] rounded-xl shadow p-3 flex items-center gap-3">
+        <div class="p-2 rounded-md bg-(--primary)/20">
+          <svg class="w-5 h-5 text-(--primary)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 6h18M3 14h18"/></svg>
+        </div>
+        <div>
+          <div class="text-xs text-(--text_primary)">Domestic Cylinders In Stock</div>
+          <div class="mt-1 text-lg font-semibold text-(--primary)">{{ cylinders_sold|default:"0" }}</div>
+        </div>
+      </div>
+
+      <div class="bg-[var(--box_background)] rounded-xl shadow p-3 flex items-center gap-3">
+        <div class="p-2 rounded-md bg-(--primary)/20">
+          <svg class="w-5 h-5 text-(--primary)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 6h18M3 14h18"/></svg>
+        </div>
+        <div>
+          <div class="text-xs text-(--text_primary)">Commercial Cylinders In Stock</div>
+          <div class="mt-1 text-lg font-semibold text-(--primary)">{{ cylinders_sold|default:"0" }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts grid (smaller boxes) -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="bg-[var(--box_background)] rounded-xl shadow p-3">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-(--primary) font-semibold text-sm">Sales</h3>
+          <div class="text-xs text-(--text_primary)">Toggle range</div>
+        </div>
+        <div class="h-36 md:h-40">
+          <canvas id="salesChart" class="w-full h-full"></canvas>
+        </div>
+      </div>
+
+      <div class="bg-[var(--box_background)] rounded-xl shadow p-3">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-(--primary) font-semibold text-sm">Expenses & Profit</h3>
+          <div class="text-xs text-(--text_primary)">Comparative</div>
+        </div>
+        <div class="h-36 md:h-40">
+          <canvas id="expenseProfitChart" class="w-full h-full"></canvas>
+        </div>
+      </div>
+
+      <div class="bg-[var(--box_background)] rounded-xl shadow p-3">
+        <h3 class="text-(--primary) font-semibold text-sm mb-2">Cylinders Sold</h3>
+        <div class="h-36 md:h-40">
+          <canvas id="cylindersChart" class="w-full h-full"></canvas>
+        </div>
+      </div>
+
+      <div class="bg-[var(--box_background)] rounded-xl shadow p-3">
+        <h3 class="text-(--primary) font-semibold text-sm mb-2">Stock — Current vs Previous Month</h3>
+        <div class="h-36 md:h-40">
+          <canvas id="stockChart" class="w-full h-full"></canvas>
+        </div>
+      </div>
+
+      <div class="col-span-1 lg:col-span-2 bg-[var(--box_background)] rounded-xl shadow p-3">
+        <h3 class="text-(--primary) font-semibold text-sm mb-2">Top Customers with Dues</h3>
+        <div class="h-32 md:h-36">
+          <canvas id="duesChart" class="w-full h-full"></canvas>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+/* Robust parsing of Django-provided JSON. Views should pass JSON objects (json.dumps) */
+function safeJson(varStr, fallback){ try{ return varStr ? varStr : fallback; }catch(e){return fallback;} }
+let salesDay = {labels:[], data:[]}, salesMonth = {labels:[], data:[]}, salesYear = {labels:[], data:[]};
+let expensesDay = {labels:[], data:[]}, expensesMonth = {labels:[], data:[]}, expensesYear = {labels:[], data:[]};
+let profitDay = {labels:[], data:[]}, profitMonth = {labels:[], data:[]}, profitYear = {labels:[], data:[]};
+let cylDay = {labels:[], data:[]}, cylMonth = {labels:[], data:[]}, cylYear = {labels:[], data:[]};
+let stockCurrent = {labels:[], data:[]}, stockPrevious = {labels:[], data:[]};
+let dues = {labels:[], data:[]};
+
+try { salesDay = {{ sales_day|default:"null"|safe }} || salesDay; } catch(e){}
+try { salesMonth = {{ sales_month|default:"null"|safe }} || salesMonth; } catch(e){}
+try { salesYear = {{ sales_year|default:"null"|safe }} || salesYear; } catch(e){}
+try { expensesDay = {{ expenses_day|default:"null"|safe }} || expensesDay; } catch(e){}
+try { expensesMonth = {{ expenses_month|default:"null"|safe }} || expensesMonth; } catch(e){}
+try { expensesYear = {{ expenses_year|default:"null"|safe }} || expensesYear; } catch(e){}
+try { profitDay = {{ profit_day|default:"null"|safe }} || profitDay; } catch(e){}
+try { profitMonth = {{ profit_month|default:"null"|safe }} || profitMonth; } catch(e){}
+try { profitYear = {{ profit_year|default:"null"|safe }} || profitYear; } catch(e){}
+try { cylDay = {{ cylinders_day|default:"null"|safe }} || cylDay; } catch(e){}
+try { cylMonth = {{ cylinders_month|default:"null"|safe }} || cylMonth; } catch(e){}
+try { cylYear = {{ cylinders_year|default:"null"|safe }} || cylYear; } catch(e){}
+try { stockCurrent = {{ stock_current|default:"null"|safe }} || stockCurrent; } catch(e){}
+try { stockPrevious = {{ stock_previous|default:"null"|safe }} || stockPrevious; } catch(e){}
+try { dues = {{ dues_customers|default:"null"|safe }} || dues; } catch(e){}
+
+/* CSS var helper */
+function cssVar(name, fallback) {
+  const val = getComputedStyle(document.documentElement).getPropertyValue(name);
+  return val ? val.trim() : fallback;
+}
+
+/* Chart factory */
+function createChart(ctx, cfg) {
+  const baseOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { position: 'top', labels: { color: cssVar('--text_primary','#374151') } }, tooltip: { mode: 'index', intersect: false } },
+    scales: { x: { ticks: { color: cssVar('--text_primary','#374151') }, grid: { color: 'transparent' } }, y: { ticks: { color: cssVar('--text_primary','#374151') }, grid: { color: 'rgba(0,0,0,0.04)' } } },
+  };
+  cfg.options = Object.assign({}, baseOptions, cfg.options || {});
+  return new Chart(ctx, cfg);
+}
+
+/* instantiate charts */
+const salesChart = createChart(document.getElementById('salesChart').getContext('2d'), {
+  type: 'bar',
+  data: { labels: salesDay.labels || [], datasets: [{ label: 'Sales', data: salesDay.data || [], backgroundColor: 'rgba(59,130,246,0.75)' }] }
+});
+
+const epChart = createChart(document.getElementById('expenseProfitChart').getContext('2d'), {
+  type: 'line',
+  data: { labels: expensesDay.labels || [], datasets: [
+    { label: 'Expenses', data: expensesDay.data || [], borderColor: 'rgba(239,68,68,1)', backgroundColor: 'rgba(239,68,68,0.12)', tension: 0.2 },
+    { label: 'Profit', data: profitDay.data || [], borderColor: 'rgba(16,185,129,1)', backgroundColor: 'rgba(16,185,129,0.12)', tension: 0.2 }
+  ] }
+});
+
+const cylChart = createChart(document.getElementById('cylindersChart').getContext('2d'), {
+  type: 'bar',
+  data: { labels: cylDay.labels || [], datasets: [{ label: 'Cylinders', data: cylDay.data || [], backgroundColor: 'rgba(234,179,8,0.85)' }] }
+});
+
+const stockChart = createChart(document.getElementById('stockChart').getContext('2d'), {
+  type: 'bar',
+  data: { labels: stockCurrent.labels.length ? stockCurrent.labels : stockPrevious.labels, datasets: [
+    { label: 'Current', data: stockCurrent.data || [], backgroundColor: 'rgba(99,102,241,0.75)' },
+    { label: 'Previous', data: stockPrevious.data || [], backgroundColor: 'rgba(148,163,184,0.6)' }
+  ] }
+});
+
+const duesChart = createChart(document.getElementById('duesChart').getContext('2d'), {
+  type: 'bar',
+  data: { labels: dues.labels || [], datasets: [{ label: 'Due Amount', data: dues.data || [], backgroundColor: 'rgba(250,204,21,0.9)' }] },
+  options: { indexAxis: 'y', maintainAspectRatio: false }
+});
+
+/* Range toggle logic */
+function updateRange(range) {
+  let s, e, p, c;
+  if (range === 'day') { s = salesDay; e = expensesDay; p = profitDay; c = cylDay; }
+  else if (range === 'month') { s = salesMonth; e = expensesMonth; p = profitMonth; c = cylMonth; }
+  else { s = salesYear; e = expensesYear; p = profitYear; c = cylYear; }
+
+  salesChart.data.labels = s.labels || []; salesChart.data.datasets[0].data = s.data || [];
+  epChart.data.labels = e.labels || []; epChart.data.datasets[0].data = e.data || []; epChart.data.datasets[1].data = p.data || [];
+  cylChart.data.labels = c.labels || []; cylChart.data.datasets[0].data = c.data || [];
+
+  salesChart.update(); epChart.update(); cylChart.update();
+}
+
+/* Active button styling */
+function setActive(id){
+  ['range-day','range-month','range-year'].forEach(i=>{
+    const el = document.getElementById(i);
+    if (!el) return;
+    const active = i===id;
+    el.setAttribute('aria-pressed', active ? 'true' : 'false');
+    if (active) el.classList.add('bg-(--primary)','text-(--text_secondary)');
+    else el.classList.remove('bg-(--primary)','text-(--text_secondary)');
+  });
+}
+
+/* Attach events then init */
+['range-day','range-month','range-year'].forEach(id=>{
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('click', ()=>{ setActive(id); updateRange(id.split('-')[1]); });
+});
+setActive('range-day');
+updateRange('day');
+</script>
 {% endblock %}

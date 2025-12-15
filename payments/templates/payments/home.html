@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="min-h-screen bg-[var(--background)] py-8 px-2 md:px-8">
+  <div class="max-w-5xl mx-auto">
+    <!-- Header and action buttons -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+      <h1 class="text-2xl font-bold text-[var(--primary)] tracking-wide">Payments</h1>
+      <div class="flex flex-wrap gap-3">
+        {% comment %} <a href="{% url 'add_payment' %}" class="inline-block bg-[var(--primary)] hover:bg-[var(--secondary)] text-[var(--text_secondary)] font-semibold px-4 py-2 rounded-lg shadow transition">+ New Payment</a> {% endcomment %}
+        <a href="{% url 'payment_dues' %}" class="inline-block bg-yellow-50 border border-yellow-400 text-yellow-700 font-semibold px-4 py-2 rounded-lg hover:bg-yellow-100 transition">Dues</a>
+        <a href="" class="inline-block bg-white border border-[var(--box_background)] text-[var(--text_primary)] font-semibold px-4 py-2 rounded-lg hover:bg-[var(--box_background)] transition">Purchase Payment Management</a>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <form method="get" class="flex flex-col md:flex-row gap-4 mb-6">
+      <input type="text" name="customer" value="{{ request.GET.customer }}" placeholder="Search by customer name or phone"
+        class="w-full md:w-1/2 px-4 py-2 rounded-lg border border-[var(--box_background)] bg-[var(--box_background)] text-[var(--text_primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition">
+      <input type="date" name="start_date" value="{{ request.GET.start_date }}"
+        class="w-full md:w-1/6 px-4 py-2 rounded-lg border border-[var(--box_background)] bg-[var(--box_background)] text-[var(--text_primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition">
+      <input type="date" name="end_date" value="{{ request.GET.end_date }}"
+        class="w-full md:w-1/6 px-4 py-2 rounded-lg border border-[var(--box_background)] bg-[var(--box_background)] text-[var(--text_primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition">
+      <div class="w-full md:w-auto">
+        <button type="submit" class="w-full md:w-auto px-6 py-2 rounded-lg bg-[var(--primary)] text-[var(--text_secondary)] font-semibold hover:bg-[var(--secondary)] transition">Filter</button>
+      </div>
+      <a href="{% url 'payments_home' %}" class="self-center text-sm text-[var(--primary)] hover:underline">Reset filters</a>
+    </form>
+
+    <!-- Payments list / table -->
+    <div class="bg-[var(--box_background)] rounded-xl shadow p-4 overflow-x-auto">
+      {% if payments %}
+        <!-- Desktop table -->
+        <table class="min-w-full text-left">
+          <thead>
+            <tr class="text-[var(--primary)] font-semibold text-sm border-b border-[var(--box_background)]">
+              <th class="py-3 px-2 text-left">#</th>
+              <th class="py-3 px-2 text-left">Date</th>
+              <th class="py-3 px-2 text-left">Customer</th>
+              <th class="py-3 px-2 text-left">Amount</th>
+              <th class="py-3 px-2 text-left">Payment Method</th>
+              <th class="py-3 px-2 text-left">Selling Record</th>
+              <th class="py-3 px-2 text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in payments %}
+            <tr class="border-b border-[var(--background)] hover:bg-[var(--background)] transition">
+              <td class="py-3 px-2 font-medium text-left">{{ forloop.counter }}</td>
+              <td class="py-3 px-2 text-left">{{ p.payment_date|date:"Y-m-d" }}</td>
+              <td class="py-3 px-2 text-left">{{ p.customer.get_full_name|default:p.customer.name }}</td>
+              <td class="py-3 px-2 text-left font-semibold">{{ p.amount_paid }}</td>
+              <td class="py-3 px-2 capitalize text-left">{{ p.payment_method }}</td>
+              <td class="py-3 px-2 text-left"> <a href="{% url 'sell_view' p.sell_record.id %}" class="underline underline-offset-1 text-blue-500"> {{ p.sell_record.id }}</a></td>
+              <td class="py-3 px-2 flex gap-2 justify-center">
+                <a href="" class="text-[var(--primary)] hover:underline font-semibold">View</a>
+                <a href="" class="text-[var(--secondary)] hover:underline font-semibold">Edit</a>
+              </td>
+            </tr>
+          
+           
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <tr>
+              <td colspan="7" class="text-center py-8 text-[var(--primary)]">No payments found.</td>
+            </tr>
+      {% endif %}
+       
+    </div>
+
+
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="flex justify-center mt-6">
+      <nav class="inline-flex rounded-md shadow-sm" aria-label="Pagination">
+        {% if page_obj.has_previous %}
+        <a href="?{% for k,v in request.GET.items %}{% if k != 'page' %}{{ k }}={{ v|urlencode }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}"
+          class="px-3 py-1 rounded-l-lg bg-white border border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white transition">Previous</a>
+        {% else %}
+        <span class="px-3 py-1 rounded-l-lg bg-gray-200 border border-[var(--primary)] text-gray-400 cursor-not-allowed">Previous</span>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+          {% if page_obj.number == num %}
+            <span class="px-3 py-1 bg-[var(--primary)] text-white border border-[var(--primary)]">{{ num }}</span>
+          {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <a href="?{% for k,v in request.GET.items %}{% if k != 'page' %}{{ k }}={{ v|urlencode }}&{% endif %}{% endfor %}page={{ num }}"
+              class="px-3 py-1 bg-white border border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white transition">{{ num }}</a>
+          {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <a href="?{% for k,v in request.GET.items %}{% if k != 'page' %}{{ k }}={{ v|urlencode }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}"
+          class="px-3 py-1 rounded-r-lg bg-white border border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white transition">Next</a>
+        {% else %}
+        <span class="px-3 py-1 rounded-r-lg bg-gray-200 border border-[var(--primary)] text-gray-400 cursor-not-allowed">Next</span>
+        {% endif %}
+      </nav>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}
