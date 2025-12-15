@@ -22,6 +22,7 @@ class Stock(models.Model):
     no_domestic_cylinder = models.PositiveIntegerField(default=0)
     no_commercial_cylinder = models.PositiveIntegerField(default=0)
 
+
     def __str__(self):
         return f"Stock - Domestic: {self.no_domestic_cylinder}, Commercial: {self.no_commercial_cylinder}"
     

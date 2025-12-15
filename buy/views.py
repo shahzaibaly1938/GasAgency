@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from vendor.models import Vendor
-from .models import AddStock
+from .models import AddStock, Stock
 from datetime import datetime
 from django.contrib import messages
 
@@ -39,9 +39,30 @@ def add_stock_view(request):
             date=date
          )
         stock.save()
+        if no_domestic_cylinder or no_commercial_cylinder:
+            current_stock, created = Stock.objects.get_or_create(id=1)
+            current_stock.no_domestic_cylinder += no_domestic_cylinder
+            current_stock.no_commercial_cylinder += no_commercial_cylinder
+            current_stock.save()
+        
         messages.success(request, 'Sale record created successfully.')
 
     context = {
         'vendors': vendors
     }
     return render(request, 'buy/add_stock.html', context)
+
+
+def delete_stock(request, id):
+    stock = AddStock.objects.get(id=id)
+    stock.delete()
+    cylinder_stock, created = Stock.objects.get_or_create(id=1)
+    cylinder_stock.no_domestic_cylinder -= stock.no_domestic_cylinder
+    cylinder_stock.no_commercial_cylinder -= stock.no_commercial_cylinder
+    cylinder_stock.save()
+    messages.success(request, f'Stock record deleted successfully.')
+    stock_records = AddStock.objects.all().order_by('-date')
+    context = {
+        'stock': stock_records
+    }
+    return render(request, 'buy/buy.html', context)

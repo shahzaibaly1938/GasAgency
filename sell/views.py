@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect
 from customer.models import Customer
+from buy.models import Stock
 from .models import Sell
 from datetime import datetime
 from django.core.paginator import Paginator
+from django.contrib import messages
 
 # Create your views here.
 def sell_view(request):
@@ -41,6 +43,10 @@ def sell_create_view(request):
             date=date
         )
         sale.save()
+        cylinder_stock, created = Stock.objects.get_or_create(id=1)
+        cylinder_stock.no_domestic_cylinder -= no_domestic_cylinder
+        cylinder_stock.no_commercial_cylinder -= no_commercial_cylinder
+        cylinder_stock.save()
         return redirect('payment_process', sell_id=sale.id)                     
         messages.success(request, 'Sale record created successfully.')  
         
@@ -97,5 +103,10 @@ def sell_edit_view(request, sell_id):
 def sell_delete_view(request, sell_id):
     sell = Sell.objects.get(id=sell_id)
     sell.delete()
+    cylinder_stock, created = Stock.objects.get_or_create(id=1)
+    cylinder_stock.no_domestic_cylinder += sell.no_domestic_cylinder
+    cylinder_stock.no_commercial_cylinder += sell.no_commercial_cylinder
+    cylinder_stock.save()
+    
     messages.success(request, f'Sale record of {sell.customer.name} deleted successfully.')
     return redirect('sell')
