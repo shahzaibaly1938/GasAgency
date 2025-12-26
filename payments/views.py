@@ -62,6 +62,13 @@ def payment_dues(request):
     }
     return render(request, 'payments/dues.html', context)
 
+def make_due(request, sell_id):
+    sell_record = Sell.objects.get(id=sell_id)
+    sell_record.payment_status = "due"
+    sell_record.due_amount = sell_record.total_amount
+    sell_record.save()
+    return redirect('payment_dues')
+
 
 def payment_process(request, sell_id):
     sell_record = Sell.objects.get(id=sell_id)

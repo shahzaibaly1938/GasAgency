@@ -6,4 +6,5 @@ urlpatterns = [
     path('add-payment/<int:sell_id>/', views.add_payment, name='add_payment'),
     path('dues/', views.payment_dues, name='payment_dues'),
     path('process/<int:sell_id>/', views.payment_process, name='payment_process'),
+    path('make-due/<int:sell_id>/', views.make_due, name='make_due'),
 ]
