@@ -12,6 +12,8 @@ class AddStock(models.Model):
     commercial_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     return_domestic_cylinder = models.PositiveIntegerField(default=0)
     return_commercial_cylinder = models.PositiveIntegerField(default=0)
+    price_per_domestic = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    price_per_commercial = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     total_amount = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
     date = models.DateTimeField(default=datetime.now)
 

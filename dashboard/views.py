@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.db.models import Sum, Value, DecimalField, F
+from django.db.models import Sum, Value, DecimalField, F, Case, When, ExpressionWrapper
 from django.db.models.functions import Coalesce, TruncDay, TruncMonth
 from django.utils.timezone import now
 import json
@@ -36,6 +36,11 @@ def _timeseries(qs, date_field_name, value_field, trunc_func):
         s = period.isoformat() if hasattr(period, 'isoformat') else str(period)
         out.append({'day': s, 'total': float(e['total'])})
     return out
+
+
+def calculate_total_profit(sales_data):
+    # removed - calculation done in dashboard_view using ORM aggregates
+    return 0, 0
 
 
 def dashboard_view(request):
@@ -79,6 +84,86 @@ def dashboard_view(request):
     total_sales = _coalesce_sum(sales_qs, 'total_amount')
     total_expenses = _coalesce_sum(expenses_qs, 'amount')
     total_profit = total_sales - total_expenses
+    
+    # --- Cylinder profit: compute revenue and purchase cost per type, then subtract ---
+    # determine cylinder count fields on Sell
+    dom_field = 'no_domestic_cylinder' if _has_field(Sell, 'no_domestic_cylinder') else ('domestic_qty' if _has_field(Sell, 'domestic_qty') else None)
+    com_field = 'no_commercial_cylinder' if _has_field(Sell, 'no_commercial_cylinder') else ('commercial_qty' if _has_field(Sell, 'commercial_qty') else None)
+
+    # Helper: allocate total_amount in rows proportionally to dom/com counts
+    def _allocate_amount(qs, count_field):
+        # annotate per-row total_count to avoid division by zero
+        qs2 = qs.annotate(total_count=ExpressionWrapper(
+            (F(dom_field) if dom_field else Value(0)) + (F(com_field) if com_field else Value(0)),
+            output_field=DecimalField()
+        ))
+        if not count_field:
+            return 0.0
+        alloc_expr = Case(
+            When(total_count=0, then=Value(0)),
+            default=ExpressionWrapper(F('total_amount') * (F(count_field) / F('total_count')), output_field=DecimalField())
+        )
+        val = qs2.aggregate(total=Coalesce(Sum(alloc_expr), Value(0, output_field=DecimalField())))['total']
+        return float(val or 0)
+
+    # Revenue from sales (prefer explicit per-type price fields if present)
+    if dom_field and com_field and _has_field(Sell, 'domestic_price') and _has_field(Sell, 'commercial_price'):
+        qs_rev = sales_qs.annotate(
+            rev_dom=ExpressionWrapper(F('domestic_price') * F(dom_field), output_field=DecimalField()),
+            rev_com=ExpressionWrapper(F('commercial_price') * F(com_field), output_field=DecimalField())
+        )
+        revenue_dom = _coalesce_sum(qs_rev, 'rev_dom')
+        revenue_com = _coalesce_sum(qs_rev, 'rev_com')
+    elif dom_field and com_field:
+        revenue_dom = _allocate_amount(sales_qs, dom_field)
+        revenue_com = _allocate_amount(sales_qs, com_field)
+    else:
+        revenue_dom = revenue_com = 0.0
+
+    # Purchases from AddStock (use same date range as sales_qs)
+    addstock_qs = AddStock.objects.all()
+    # apply same date filters as sales_qs (best-effort)
+    if start_date and end_date:
+        addstock_qs = addstock_qs.filter(date__range=[start_date, end_date])
+    elif month:
+        try:
+            yyyy, mm = month.split('-')
+            addstock_qs = addstock_qs.filter(date__year=int(yyyy), date__month=int(mm))
+        except Exception:
+            pass
+    elif year:
+        try:
+            addstock_qs = addstock_qs.filter(date__year=int(year))
+        except Exception:
+            pass
+    else:
+        now_dt = now()
+        addstock_qs = addstock_qs.filter(date__year=now_dt.year, date__month=now_dt.month)
+
+    # Purchase cost for domestic/commercial: prefer explicit per-type fields, else proportional allocation
+    if _has_field(AddStock, 'domestic_price') and _has_field(AddStock, 'no_domestic_cylinder'):
+        qs_p = addstock_qs.annotate(cost_dom=ExpressionWrapper(F('domestic_price') * F('no_domestic_cylinder'), output_field=DecimalField()))
+        purchase_dom = _coalesce_sum(qs_p, 'cost_dom')
+    elif _has_field(AddStock, 'domestic_amount'):
+        purchase_dom = _coalesce_sum(addstock_qs, 'domestic_amount')
+    elif _has_field(AddStock, 'no_domestic_cylinder') and _has_field(AddStock, 'no_commercial_cylinder') and _has_field(AddStock, 'total_amount'):
+        purchase_dom = _allocate_amount(addstock_qs, 'no_domestic_cylinder')
+    else:
+        purchase_dom = 0.0
+
+    if _has_field(AddStock, 'commercial_price') and _has_field(AddStock, 'no_commercial_cylinder'):
+        qs_p2 = addstock_qs.annotate(cost_com=ExpressionWrapper(F('commercial_price') * F('no_commercial_cylinder'), output_field=DecimalField()))
+        purchase_com = _coalesce_sum(qs_p2, 'cost_com')
+    elif _has_field(AddStock, 'commercial_amount'):
+        purchase_com = _coalesce_sum(addstock_qs, 'commercial_amount')
+    elif _has_field(AddStock, 'no_domestic_cylinder') and _has_field(AddStock, 'no_commercial_cylinder') and _has_field(AddStock, 'total_amount'):
+        purchase_com = _allocate_amount(addstock_qs, 'no_commercial_cylinder')
+    else:
+        purchase_com = 0.0
+
+    # final cylinder profit per type
+    domestic_profit = float(revenue_dom) - float(purchase_dom)
+    commercial_profit = float(revenue_com) - float(purchase_com)
 
     # Cylinders sold totals (handle possible field names)
     dom_field = 'no_domestic_cylinder' if _has_field(Sell, 'no_domestic_cylinder') else ('domestic_qty' if _has_field(Sell, 'domestic_qty') else None)
@@ -145,9 +230,11 @@ def dashboard_view(request):
 
     cylinders_day = _cylinders_ts(Sell.objects.all(), date_field, dom_field, com_field)
 
-    
+
     current_stock = Stock.objects.first()
    
+
+    total_profit = total_profit + domestic_profit + commercial_profit
     # Prepare JSON payloads for template
     context = {
         'customers_count': Customer.objects.count(),
@@ -168,6 +255,8 @@ def dashboard_view(request):
         'cylinders_day': json.dumps(cylinders_day),
         'stock_current': json.dumps(stock_current),
         'stock_previous': json.dumps(stock_previous),
+        'profit_domestic': domestic_profit,
+        'profit_commercial': commercial_profit,
     }
 
     return render(request, 'dashboard/dashboard.html', context)

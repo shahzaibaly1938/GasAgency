@@ -32,6 +32,8 @@
             <th class="py-3 px-2">Commercial</th>
             <th class="py-3 px-2">Return Domestic</th>
             <th class="py-3 px-2">Return Commercial</th>
+            <th class="py-3 px-2">price per Commercial</th>
+            <th class="py-3 px-2">price per Domestic</th>
             <th class="py-3 px-2">Total Amount</th>
             <th class="py-3 px-2">Action</th>
           </tr>
@@ -47,6 +49,8 @@
             <td class="py-2 px-2">{{ item.no_commercial_cylinder }}</td>
             <td class="py-2 px-2">{{ item.return_domestic_cylinder }}</td>
             <td class="py-2 px-2">{{ item.return_commercial_cylinder }}</td>
+            <td class="py-2 px-2">{{ item.price_per_domestic }}</td>
+            <td class="py-2 px-2">{{ item.price_per_commercial }}</td>
             <td class="py-2 px-2">{{ item.total_amount }}</td>
             <td class="py-2 px-2">
               <a href="" class="text-[var(--primary)] hover:underline" onclick="event.stopPropagation();">Edit</a>
